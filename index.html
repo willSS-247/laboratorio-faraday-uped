@@ -3,172 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light" />
-  <title>Simulador de Inducción Electromagnética — Física III (UPED)</title>
+  <title>Inducción de Faraday y Lenz — Física III (UPED)</title>
   <link rel="stylesheet" href="css/theme-tokens.css" />
   <link rel="stylesheet" href="css/laboratorio.css" />
   <link rel="stylesheet" href="css/instrumentos.css" />
 </head>
 <body>
-  <header class="barra-superior">
-    <div class="identidad-practica">
-      <span class="etiqueta-curso">Física III · UPED</span>
-      <h1>Simulador de Inducción Electromagnética de Faraday y Ley de Lenz</h1>
+  <main class="escenario-completo">
+    <!-- Lienzo principal a pantalla completa -->
+    <canvas id="canvas-laboratorio" width="1280" height="720">
+      Simulación interactiva de inducción electromagnética de Faraday y Lenz.
+    </canvas>
+
+    <!-- Identificación minimalista sin barra superior -->
+    <div class="titulo-flotante">
+      <h1>Ley de Faraday y Lenz · Física III (UPED)</h1>
+      <div class="subtitulo-telemetria" aria-live="polite">
+        <span>x = <strong id="val-posicion">-12.00 cm</strong></span>
+        <span>v = <strong id="val-velocidad">0.00 cm/s</strong></span>
+      </div>
     </div>
-    <div class="acciones-globales">
-      <button id="btn-audio" class="btn" type="button" aria-pressed="false">Audio: OFF</button>
-      <button id="btn-reiniciar" class="btn btn-peligro" type="button">Reiniciar simulación</button>
-    </div>
-  </header>
 
-  <div id="alerta-error" class="alerta-fisica" role="alert" hidden></div>
+    <div id="alerta-error" class="alerta-fisica" role="alert" hidden></div>
 
-  <main class="rejilla-laboratorio">
-    <section class="panel" aria-labelledby="titulo-mesa">
-      <div class="panel-encabezado">
-        <h2 id="titulo-mesa">Área experimental</h2>
-        <div class="telemetria-inline" aria-live="polite">
-          <span>Posición del imán: <strong id="val-posicion">-12.00 cm</strong></span>
-          <span>Velocidad: <strong id="val-velocidad">0.00 cm/s</strong></span>
+    <!-- Galvanómetro acoplado en esquina superior derecha -->
+    <aside class="instrumento-galvanometro" aria-label="Galvanómetro">
+      <canvas id="canvas-galvanometro" width="320" height="190"></canvas>
+      <div class="lecturas-compactas" aria-live="polite">
+        <div>
+          <span>FEM (ε)</span>
+          <output id="out-fem">0.000 V</output>
+        </div>
+        <div>
+          <span>Corriente (I)</span>
+          <output id="out-corriente">0.00 mA</output>
+        </div>
+        <div>
+          <span>Flujo (Φ_B)</span>
+          <output id="out-flujo">0.000 mWb</output>
         </div>
       </div>
+    </aside>
 
-      <div class="contenedor-lienzo">
-        <canvas id="canvas-laboratorio" width="820" height="340">
-          Simulación interactiva de un imán desplazándose a través de una bobina de cobre conectada a un galvanómetro.
-        </canvas>
-      </div>
-      <p class="pie-lienzo">Arrastra el imán horizontalmente con el ratón o activa el movimiento armónico automático.</p>
-
-      <div class="barra-controles-cinematica">
-        <button id="btn-modo-oscilador" class="btn btn-primario" type="button" aria-pressed="false">
-          Iniciar oscilador armónico
-        </button>
-        <button id="btn-invertir-polos" class="btn" type="button">
-          Invertir polaridad (N / S)
-        </button>
-        <button id="btn-capturar-dato" class="btn btn-acento" type="button">
-          Registrar medición
-        </button>
-      </div>
-
-      <div class="rejilla-parametros">
-        <div class="control-parametro">
-          <label for="slider-espiras">
-            <span>Número de espiras (N)</span>
-            <output id="disp-espiras" for="slider-espiras">250</output>
-          </label>
-          <input id="slider-espiras" type="range" min="50" max="1000" step="10" value="250" />
-        </div>
-
-        <div class="control-parametro">
-          <label for="slider-campo">
-            <span>Campo magnético (B)</span>
-            <output id="disp-campo" for="slider-campo">0.45 T</output>
-          </label>
-          <input id="slider-campo" type="range" min="0.10" max="1.50" step="0.05" value="0.45" />
-        </div>
-
-        <div class="control-parametro">
-          <label for="slider-area">
-            <span>Área de la bobina (A)</span>
-            <output id="disp-area" for="slider-area">12.0 cm²</output>
-          </label>
-          <input id="slider-area" type="range" min="4.0" max="30.0" step="0.5" value="12.0" />
-        </div>
-
-        <div class="control-parametro">
-          <label for="slider-resistencia">
-            <span>Resistencia del circuito (R)</span>
-            <output id="disp-resistencia" for="slider-resistencia">15.0 Ω</output>
-          </label>
-          <input id="slider-resistencia" type="range" min="5.0" max="100.0" step="1.0" value="15.0" />
-        </div>
-
-        <div class="control-parametro">
-          <label for="slider-frecuencia">
-            <span>Frecuencia de oscilación (f)</span>
-            <output id="disp-frecuencia" for="slider-frecuencia">0.60 Hz</output>
-          </label>
-          <input id="slider-frecuencia" type="range" min="0.20" max="2.50" step="0.05" value="0.60" />
-        </div>
-      </div>
-    </section>
-
-    <div class="columna-instrumentos">
-      <section class="panel" aria-labelledby="titulo-galvanometro">
-        <div class="panel-encabezado">
-          <h2 id="titulo-galvanometro">Galvanómetro de cero central</h2>
-          <span class="insignia-unidad">mA</span>
-        </div>
-
-        <div class="lienzo-instrumento">
-          <canvas id="canvas-galvanometro" width="320" height="190">
-            Galvanómetro analógico de cero central en miliamperios.
-          </canvas>
-        </div>
-
-        <div class="rejilla-lecturas" aria-live="polite">
-          <div class="celda-lectura">
-            <span class="etiqueta">FEM inducida (ε)</span>
-            <output id="out-fem">0.000 V</output>
+    <!-- Cajones plegables de laboratorio (no estorban la vista) -->
+    <div class="cajones-herramientas">
+      <details class="cajon" open>
+        <summary>Parámetros físicos</summary>
+        <div class="contenido-cajon">
+          <div class="control-parametro">
+            <label for="slider-espiras">
+              <span>Espiras (N)</span>
+              <output id="disp-espiras" for="slider-espiras">250</output>
+            </label>
+            <input id="slider-espiras" type="range" min="50" max="1000" step="10" value="250" />
           </div>
-          <div class="celda-lectura">
-            <span class="etiqueta">Corriente (I)</span>
-            <output id="out-corriente">0.00 mA</output>
+
+          <div class="control-parametro">
+            <label for="slider-campo">
+              <span>Campo magnético (B)</span>
+              <output id="disp-campo" for="slider-campo">0.45 T</output>
+            </label>
+            <input id="slider-campo" type="range" min="0.10" max="1.50" step="0.05" value="0.45" />
           </div>
-          <div class="celda-lectura">
-            <span class="etiqueta">Flujo (Φ_B)</span>
-            <output id="out-flujo">0.000 mWb</output>
+
+          <div class="control-parametro">
+            <label for="slider-area">
+              <span>Área bobina (A)</span>
+              <output id="disp-area" for="slider-area">12.0 cm²</output>
+            </label>
+            <input id="slider-area" type="range" min="4.0" max="30.0" step="0.5" value="12.0" />
+          </div>
+
+          <div class="control-parametro">
+            <label for="slider-resistencia">
+              <span>Resistencia (R)</span>
+              <output id="disp-resistencia" for="slider-resistencia">15.0 Ω</output>
+            </label>
+            <input id="slider-resistencia" type="range" min="5.0" max="100.0" step="1.0" value="15.0" />
+          </div>
+
+          <div class="control-parametro">
+            <label for="slider-frecuencia">
+              <span>Frecuencia (f)</span>
+              <output id="disp-frecuencia" for="slider-frecuencia">0.60 Hz</output>
+            </label>
+            <input id="slider-frecuencia" type="range" min="0.20" max="2.50" step="0.05" value="0.60" />
           </div>
         </div>
-      </section>
+      </details>
 
-      <section class="panel" aria-labelledby="titulo-osciloscopio">
-        <div class="panel-encabezado">
-          <h2 id="titulo-osciloscopio">Gráfica temporal Φ_B(t) y ε(t)</h2>
+      <details class="cajon">
+        <summary>Gráfica temporal Φ_B(t) vs ε(t)</summary>
+        <div class="contenido-cajon">
           <div class="leyenda-osciloscopio">
-            <span class="leyenda-flujo">■ Φ_B</span>
-            <span class="leyenda-fem">■ ε</span>
+            <span class="leyenda-flujo">■ Flujo Φ_B</span>
+            <span class="leyenda-fem">■ FEM ε</span>
+          </div>
+          <canvas id="canvas-osciloscopio" width="320" height="170"></canvas>
+        </div>
+      </details>
+
+      <details class="cajon cajon-tabla">
+        <summary>Tabla de mediciones</summary>
+        <div class="contenido-cajon">
+          <div style="display: flex; gap: 6px; justify-content: flex-end;">
+            <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar</button>
+            <button id="btn-exportar-csv" class="btn btn-primario btn-pequeno" type="button">Exportar CSV</button>
+          </div>
+          <div class="contenedor-tabla">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>t (s)</th>
+                  <th>x (cm)</th>
+                  <th>v (cm/s)</th>
+                  <th>N</th>
+                  <th>B (T)</th>
+                  <th>Φ_B</th>
+                  <th>ε (V)</th>
+                  <th>I (mA)</th>
+                </tr>
+              </thead>
+              <tbody id="cuerpo-tabla"></tbody>
+            </table>
           </div>
         </div>
-
-        <div class="lienzo-instrumento">
-          <canvas id="canvas-osciloscopio" width="320" height="170">
-            Gráfica de flujo magnético y fuerza electromotriz en el tiempo.
-          </canvas>
-        </div>
-      </section>
+      </details>
     </div>
 
-    <section class="panel panel-bitacora" aria-labelledby="titulo-bitacora">
-      <div class="panel-encabezado">
-        <h2 id="titulo-bitacora">Tabla de mediciones registradas</h2>
-        <div class="acciones-globales">
-          <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar tabla</button>
-          <button id="btn-exportar-csv" class="btn btn-primario btn-pequeno" type="button">Exportar CSV</button>
-        </div>
-      </div>
-
-      <div class="contenedor-tabla">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Tiempo (s)</th>
-              <th>Posición (cm)</th>
-              <th>Velocidad (cm/s)</th>
-              <th>Espiras (N)</th>
-              <th>Campo (T)</th>
-              <th>Flujo (mWb)</th>
-              <th>FEM (V)</th>
-              <th>Corriente (mA)</th>
-            </tr>
-          </thead>
-          <tbody id="cuerpo-tabla"></tbody>
-        </table>
-      </div>
-    </section>
+    <!-- Dock inferior de control directo -->
+    <nav class="dock-inferior" aria-label="Controles de simulación">
+      <button id="btn-modo-oscilador" class="btn btn-primario" type="button" aria-pressed="false">
+        Iniciar oscilador
+      </button>
+      <button id="btn-invertir-polos" class="btn" type="button">
+        Invertir polos (N/S)
+      </button>
+      <button id="btn-capturar-dato" class="btn btn-acento" type="button">
+        Registrar lectura
+      </button>
+      <button id="btn-audio" class="btn" type="button" aria-pressed="false">
+        Audio: OFF
+      </button>
+      <button id="btn-reiniciar" class="btn btn-peligro" type="button">
+        Reiniciar
+      </button>
+    </nav>
   </main>
 
   <script type="module" src="js/main.js"></script>

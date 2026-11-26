@@ -1,111 +1,89 @@
-.insignia-unidad {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.12rem 0.45rem;
-  border-radius: 4px;
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-light);
-  color: var(--text-muted);
-}
-
-.lienzo-instrumento {
-  display: flex;
-  justify-content: center;
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  padding: 0.35rem;
-}
-
-.lienzo-instrumento canvas {
-  width: 100%;
-  max-width: 340px;
-  height: auto;
-  display: block;
-}
-
-/* Lecturas numéricas limpias */
-.rejilla-lecturas {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.celda-lectura {
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
-  padding: 0.45rem 0.6rem;
-}
-
-.celda-lectura .etiqueta {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-bottom: 0.15rem;
-}
-
-.celda-lectura output {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.92rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-main);
-}
-
-.leyenda-osciloscopio {
-  display: flex;
-  gap: 0.8rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.leyenda-flujo {
-  color: var(--color-flux);
-}
-
-.leyenda-fem {
-  color: var(--color-copper);
-}
-
-/* Parámetros experimentales */
-.rejilla-parametros {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.9rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--border-light);
-}
-
 .control-parametro {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 2px;
+  margin-bottom: 0.55rem;
+}
+
+.control-parametro:last-child {
+  margin-bottom: 0;
 }
 
 .control-parametro label {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.75rem;
+  color: var(--texto-secundario);
 }
 
 .control-parametro output {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
   font-weight: 600;
+  color: var(--texto-principal);
   font-variant-numeric: tabular-nums;
-  color: var(--text-main);
 }
 
 .control-parametro input[type="range"] {
   width: 100%;
-  accent-color: var(--color-primary);
+  accent-color: var(--acento-azul);
   cursor: pointer;
+}
+
+#canvas-osciloscopio {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+}
+
+.leyenda-osciloscopio {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  margin-bottom: 4px;
+}
+
+.leyenda-flujo {
+  color: #0369a1;
+}
+
+.leyenda-fem {
+  color: #b45309;
+}
+
+/* Tabla compacta dentro de su cajón */
+.cajon-tabla {
+  width: min(540px, calc(100vw - 32px));
+}
+
+.contenedor-tabla {
+  max-height: 170px;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  margin-top: 0.45rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  padding: 4px 6px;
+  text-align: right;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  color: var(--texto-secundario);
 }

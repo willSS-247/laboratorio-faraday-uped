@@ -16,10 +16,11 @@ export class LienzoLaboratorio {
     this.#canvas = canvasElemento;
     this.#ctx = canvasElemento.getContext('2d');
     this.#anchoLogico = 820;
-    this.#altoLogico = 340;
-    this.#escalaPxPorCm = 17.5;
-    this.#origenX = this.#anchoLogico * 0.54;
-    this.#origenY = this.#altoLogico * 0.48;
+    this.#anchoLogico = 1280;
+    this.#altoLogico = 720;
+    this.#escalaPxPorCm = 24;
+    this.#origenX = this.#anchoLogico * 0.56;
+    this.#origenY = this.#altoLogico * 0.52;
     this.#renderizadorCampo = new RenderizadorCampo();
     this.#arrastrandoIman = false;
     this.#offsetArrastreX = 0;
