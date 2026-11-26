@@ -15,7 +15,6 @@ export class LienzoLaboratorio {
   constructor(canvasElemento) {
     this.#canvas = canvasElemento;
     this.#ctx = canvasElemento.getContext('2d');
-    this.#anchoLogico = 820;
     this.#anchoLogico = 1280;
     this.#altoLogico = 720;
     this.#escalaPxPorCm = 24;
@@ -35,6 +34,27 @@ export class LienzoLaboratorio {
     this.#ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
+  contienePuntoEnIman(clienteX, clienteY, iman) {
+    const rect = this.#canvas.getBoundingClientRect();
+    const xPx = ((clienteX - rect.left) / rect.width) * this.#anchoLogico;
+    const yPx = ((clienteY - rect.top) / rect.height) * this.#altoLogico;
+
+    const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
+    const mitadLargoPx = (iman.longitudCm * this.#escalaPxPorCm) / 2 + 18;
+    const mitadAltoPx = 32;
+
+    return (
+      Math.abs(xPx - centroImanPx) <= mitadLargoPx &&
+      Math.abs(yPx - this.#origenY) <= mitadAltoPx
+    );
+  }
+
+  pixelAPosicionCm(clienteX) {
+    const rect = this.#canvas.getBoundingClientRect();
+    const xPx = ((clienteX - rect.left) / rect.width) * this.#anchoLogico;
+    return (xPx - this.#origenX) / this.#escalaPxPorCm;
+  }
+
   vincularInteraccionIman(iman, alIniciarArrastre, alMoverIman) {
     const obtenerCoordenadaLogicaX = (evento) => {
       const rect = this.#canvas.getBoundingClientRect();
@@ -42,11 +62,9 @@ export class LienzoLaboratorio {
     };
 
     this.#canvas.addEventListener('pointerdown', (evento) => {
-      const xPx = obtenerCoordenadaLogicaX(evento);
-      const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
-      const mitadLargoPx = (iman.longitudCm * this.#escalaPxPorCm) / 2 + 16;
-
-      if (Math.abs(xPx - centroImanPx) <= mitadLargoPx) {
+      if (this.contienePuntoEnIman(evento.clientX, evento.clientY, iman)) {
+        const xPx = obtenerCoordenadaLogicaX(evento);
+        const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
         this.#arrastrandoIman = true;
         this.#offsetArrastreX = xPx - centroImanPx;
         this.#canvas.setPointerCapture(evento.pointerId);
@@ -77,11 +95,36 @@ export class LienzoLaboratorio {
     this.#canvas.addEventListener('pointercancel', finalizarArrastre);
   }
 
+  #resolverEstadoLenz(motorFaraday) {
+    if (typeof motorFaraday.obtenerEstadoLenz === 'function') {
+      return motorFaraday.obtenerEstadoLenz();
+    }
+    if (typeof motorFaraday.determinarLeyLenz === 'function') {
+      return motorFaraday.determinarLeyLenz();
+    }
+    if (motorFaraday.estadoLenz) {
+      return motorFaraday.estadoLenz;
+    }
+
+    const corriente = motorFaraday.corrienteInducidaMa || 0;
+    const hayInduccion = Math.abs(corriente) > 0.25;
+    const sentidoCorriente = corriente >= 0 ? 1 : -1;
+    const poloInducidoIzquierda = sentidoCorriente > 0 ? 'N' : 'S';
+    const poloInducidoDerecha = sentidoCorriente > 0 ? 'S' : 'N';
+
+    return {
+      hayInduccion,
+      sentidoCorriente,
+      poloInducidoIzquierda,
+      poloInducidoDerecha
+    };
+  }
+
   renderizar(motorFaraday, deltaTiempoS) {
     const ctx = this.#ctx;
     const iman = motorFaraday.iman;
     const bobina = motorFaraday.bobina;
-    const estadoLenz = motorFaraday.obtenerEstadoLenz();
+    const estadoLenz = this.#resolverEstadoLenz(motorFaraday);
 
     ctx.clearRect(0, 0, this.#anchoLogico, this.#altoLogico);
 
@@ -114,10 +157,9 @@ export class LienzoLaboratorio {
   #dibujarFondoYRegla(ctx) {
     ctx.save();
 
-    // Cuadrícula milimetrada suave de laboratorio
-    ctx.strokeStyle = '#f1f5f9';
+    ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
-    const pasoCuadricula = 25;
+    const pasoCuadricula = 30;
     for (let x = 0; x <= this.#anchoLogico; x += pasoCuadricula) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -131,22 +173,20 @@ export class LienzoLaboratorio {
       ctx.stroke();
     }
 
-    // Eje axial de simetría
-    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeStyle = '#94a3b8';
     ctx.setLineDash([6, 4]);
     ctx.beginPath();
-    ctx.moveTo(30, this.#origenY);
-    ctx.lineTo(this.#anchoLogico - 30, this.#origenY);
+    ctx.moveTo(40, this.#origenY);
+    ctx.lineTo(this.#anchoLogico - 40, this.#origenY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Regla física graduada en la parte inferior
-    const yRegla = this.#altoLogico - 34;
-    ctx.fillStyle = '#f8fafc';
+    const yRegla = this.#altoLogico - 96;
+    ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#cbd5e1';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.roundRect(36, yRegla - 10, this.#anchoLogico - 72, 28, 4);
+    ctx.roundRect(60, yRegla - 10, this.#anchoLogico - 120, 28, 4);
     ctx.fill();
     ctx.stroke();
 
@@ -156,7 +196,7 @@ export class LienzoLaboratorio {
 
     for (let cm = -24; cm <= 18; cm++) {
       const x = this.#origenX + cm * this.#escalaPxPorCm;
-      if (x < 48 || x > this.#anchoLogico - 48) continue;
+      if (x < 75 || x > this.#anchoLogico - 75) continue;
 
       const esPrincipal = cm % 5 === 0;
       const esOrigen = cm === 0;
@@ -183,7 +223,6 @@ export class LienzoLaboratorio {
     const baseY = this.#origenY + 62;
 
     ctx.save();
-    // Base aislante tipo laboratorio académico
     ctx.fillStyle = '#e2e8f0';
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 1.2;
@@ -192,7 +231,6 @@ export class LienzoLaboratorio {
     ctx.fill();
     ctx.stroke();
 
-    // Cables de conexión hacia el galvanómetro
     ctx.strokeStyle = '#b45309';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -205,7 +243,6 @@ export class LienzoLaboratorio {
     ctx.lineTo(centroX + 20, baseY + 26);
     ctx.stroke();
 
-    // Símbolo de terminal conectado a G
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#b45309';
     ctx.lineWidth = 1.8;
@@ -225,7 +262,7 @@ export class LienzoLaboratorio {
   #dibujarIman(ctx, iman) {
     const centroX = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
     const largoPx = iman.longitudCm * this.#escalaPxPorCm;
-    const altoPx = 40;
+    const altoPx = 42;
     const xInicio = centroX - largoPx / 2;
     const yInicio = this.#origenY - altoPx / 2;
     const mitadAncho = largoPx / 2;
@@ -235,12 +272,10 @@ export class LienzoLaboratorio {
     const etiquetaDer = poloDerechoEsNorte ? 'N' : 'S';
 
     ctx.save();
-    // Sombra realista sobre la mesa
     ctx.shadowColor = 'rgba(15, 23, 42, 0.16)';
     ctx.shadowBlur = 8;
     ctx.shadowOffsetY = 3;
 
-    // Mitad izquierda con degradado metálico
     const gradIzq = ctx.createLinearGradient(0, yInicio, 0, yInicio + altoPx);
     if (poloDerechoEsNorte) {
       gradIzq.addColorStop(0, '#3b82f6');
@@ -256,7 +291,6 @@ export class LienzoLaboratorio {
     ctx.roundRect(xInicio, yInicio, mitadAncho, altoPx, [4, 0, 0, 4]);
     ctx.fill();
 
-    // Mitad derecha con degradado metálico
     const gradDer = ctx.createLinearGradient(0, yInicio, 0, yInicio + altoPx);
     if (poloDerechoEsNorte) {
       gradDer.addColorStop(0, '#ef4444');
@@ -279,13 +313,11 @@ export class LienzoLaboratorio {
     ctx.roundRect(xInicio, yInicio, largoPx, altoPx, 4);
     ctx.stroke();
 
-    // Línea divisoria central metálica
     ctx.beginPath();
     ctx.moveTo(centroX, yInicio);
     ctx.lineTo(centroX, yInicio + altoPx);
     ctx.stroke();
 
-    // Etiquetas grabadas
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 15px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
@@ -306,7 +338,6 @@ export class LienzoLaboratorio {
     const inicioX = centroX - anchoPx / 2;
 
     ctx.save();
-    // Degradado de cobre realista para cada espira
     const gradCobre = ctx.createLinearGradient(0, this.#origenY - radioVerticalPx, 0, this.#origenY + radioVerticalPx);
     if (capaFrontal) {
       gradCobre.addColorStop(0, '#92400e');
