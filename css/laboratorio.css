@@ -7,14 +7,15 @@
 }
 
 body {
-  background-color: var(--color-fondo-app);
-  color: var(--color-texto-principal);
-  font-family: var(--fuente-ui);
-  font-size: 14px;
-  line-height: 1.45;
-  min-height: 100vh;
+  font-family: var(--font-sans);
+  background-color: var(--bg-canvas-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
 }
 
+/* Cabecera sobria y funcional */
 .barra-superior {
   display: flex;
   flex-wrap: wrap;
@@ -22,214 +23,236 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 0.85rem 1.5rem;
-  background-color: var(--color-superficie-panel);
-  border-bottom: 1px solid var(--color-borde-sutil);
+  background-color: var(--bg-panel);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
-.etiqueta-modulo {
-  font-family: var(--fuente-mono);
+.identidad-practica .etiqueta-curso {
+  display: block;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--color-trazo-fem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-copper);
 }
 
-.identidad-lab h1 {
-  font-size: 1.15rem;
+.identidad-practica h1 {
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 .acciones-globales {
   display: flex;
+  align-items: center;
   gap: 0.65rem;
 }
 
-.banco-trabajo {
+/* Notificación de errores físicos */
+.alerta-fisica {
+  margin: 0.75rem 1.5rem 0;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-sm);
+  background-color: color-mix(in srgb, var(--accent-danger) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-danger) 40%, transparent);
+  color: var(--accent-danger);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+/* Distribución principal Bento técnico */
+.rejilla-laboratorio {
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
   gap: 1rem;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.5rem 2rem;
   max-width: 1440px;
   margin: 0 auto;
 }
 
-.panel-mesa,
-.panel-parametros,
-.panel-bitacora,
-.tarjeta-instrumento {
-  background-color: var(--color-superficie-panel);
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-panel);
-  padding: 1rem;
+.panel {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
 }
 
-.panel-instrumentos {
+.panel-encabezado {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  grid-row: span 2;
-}
-
-.encabezado-panel {
-  display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
 }
 
-.encabezado-panel h2 {
-  font-size: 0.85rem;
+.panel-encabezado h2 {
+  font-size: 0.78rem;
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-texto-secundario);
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
-.lectura-rapida {
+.telemetria-inline {
   display: flex;
   gap: 1rem;
-  font-family: var(--fuente-mono);
-  font-size: 0.8rem;
-  color: var(--color-texto-secundario);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
-.lectura-rapida strong {
-  color: var(--color-texto-principal);
+.telemetria-inline strong {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.contenedor-lienzo-principal {
-  background-color: var(--color-mesa-baquelita);
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-control);
-  padding: 0.5rem;
+.contenedor-lienzo {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-hairline);
+  background-color: var(--bg-canvas-area);
 }
 
-#canvas-laboratorio {
+.contenedor-lienzo canvas {
   display: block;
   width: 100%;
   height: auto;
-  cursor: grab;
   touch-action: none;
+  cursor: grab;
 }
 
-#canvas-laboratorio:active {
+.contenedor-lienzo canvas:active {
   cursor: grabbing;
 }
 
-.instruccion-arrastre {
-  margin-top: 0.45rem;
-  font-size: 0.76rem;
-  color: var(--color-texto-tenue);
-  text-align: center;
+.pie-lienzo {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
+/* Barra de acciones experimentales */
 .barra-controles-cinematica {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.85rem;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
 }
 
-button {
-  font-family: var(--fuente-ui);
-  font-size: 0.82rem;
-  font-weight: 600;
+/* Botones táctiles modernos */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   padding: 0.5rem 0.9rem;
-  border-radius: var(--radio-control);
-  border: 1px solid var(--color-borde-activo);
-  background-color: var(--color-superficie-elevada);
-  color: var(--color-texto-principal);
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-panel-subtle);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: background-color var(--transicion-rapida), border-color var(--transicion-rapida);
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
 }
 
-button:hover {
-  background-color: #273241;
+.btn:hover {
+  background-color: color-mix(in srgb, var(--text-primary) 6%, var(--bg-panel-subtle));
 }
 
-button:focus-visible,
-input[type="range"]:focus-visible {
-  outline: 2px solid var(--color-trazo-flujo);
-  outline-offset: 2px;
+.btn:active {
+  transform: translateY(1px);
 }
 
 .btn-primario {
-  background-color: #164e3f;
-  border-color: var(--color-acento-primario);
-  color: #ecfdf5;
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #ffffff;
 }
 
-.btn-primario:hover,
+.btn-primario:hover {
+  background-color: var(--accent-primary-hover);
+}
+
 .btn-primario[aria-pressed="true"] {
-  background-color: var(--color-acento-primario);
-  color: #06281e;
+  background-color: var(--accent-success);
+  border-color: var(--accent-success);
 }
 
 .btn-acento {
-  background-color: #452c0c;
-  border-color: var(--color-trazo-fem);
-  color: #fef3c7;
-}
-
-.btn-acento:hover {
-  background-color: #633f10;
+  border-color: color-mix(in srgb, var(--accent-copper) 45%, transparent);
+  color: var(--accent-copper);
+  background-color: color-mix(in srgb, var(--accent-copper) 8%, transparent);
 }
 
 .btn-peligro {
-  border-color: #7f1d1d;
-  color: #fca5a5;
+  color: var(--accent-danger);
+  border-color: color-mix(in srgb, var(--accent-danger) 30%, transparent);
 }
 
-.btn-peligro:hover {
-  background-color: #450a0a;
+.btn-pequeno {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
 }
 
-.rejilla-controles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.9rem;
-  margin-top: 0.5rem;
-}
-
-.grupo-control {
-  background-color: var(--color-superficie-elevada);
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-control);
-  padding: 0.65rem 0.8rem;
-}
-
-.cabecera-slider {
+/* Columna de instrumentación */
+.columna-instrumentos {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.45rem;
-  font-size: 0.8rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.cabecera-slider output {
-  font-family: var(--fuente-mono);
-  font-weight: 600;
-  color: var(--color-trazo-flujo);
-}
-
-input[type="range"] {
-  width: 100%;
-  accent-color: var(--color-trazo-flujo);
-  cursor: pointer;
-}
-
+/* Bitácora experimental */
 .panel-bitacora {
   grid-column: 1 / -1;
 }
 
-@media (max-width: 960px) {
-  .banco-trabajo {
-    grid-template-columns: 1fr;
-  }
+.contenedor-tabla {
+  overflow-x: auto;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+}
 
-  .panel-instrumentos {
-    grid-row: auto;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  padding: 0.55rem 0.75rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+th:first-child,
+td:first-child {
+  text-align: center;
+}
+
+th {
+  background-color: var(--bg-panel-subtle);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+td {
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 960px) {
+  .rejilla-laboratorio {
+    grid-template-columns: 1fr;
+    padding: 0.85rem;
   }
 }

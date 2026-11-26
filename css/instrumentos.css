@@ -1,137 +1,112 @@
-.unidad-medida {
-  font-family: var(--fuente-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
+.insignia-unidad {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
   padding: 0.15rem 0.45rem;
-  border-radius: 3px;
-  background-color: var(--color-superficie-elevada);
-  border: 1px solid var(--color-borde-activo);
-  color: var(--color-trazo-fem);
+  border-radius: 4px;
+  background-color: var(--bg-panel-subtle);
+  border: 1px solid var(--border-hairline);
+  color: var(--text-secondary);
 }
 
-#canvas-galvanometro,
-#canvas-osciloscopio {
-  display: block;
+.lienzo-instrumento {
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg-canvas-area);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem;
+}
+
+.lienzo-instrumento canvas {
   width: 100%;
+  max-width: 340px;
   height: auto;
-  background-color: var(--color-mesa-baquelita);
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-control);
-}
-
-.telemetria-digital {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.celda-dato {
-  background-color: var(--color-mesa-baquelita);
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-control);
-  padding: 0.45rem;
-  text-align: center;
-}
-
-.etiqueta-dato {
   display: block;
-  font-size: 0.68rem;
-  color: var(--color-texto-secundario);
-  margin-bottom: 0.2rem;
 }
 
-.valor-digital {
-  font-family: var(--fuente-mono);
-  font-size: 0.88rem;
-  font-weight: 700;
+/* Lecturas numéricas tabulares */
+.rejilla-lecturas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.celda-lectura {
+  background-color: var(--bg-panel-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.65rem;
+}
+
+.celda-lectura .etiqueta {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.15rem;
+}
+
+.celda-lectura output {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--color-texto-principal);
+  color: var(--text-primary);
 }
 
-.leyenda-trazos {
+/* Leyenda del osciloscopio */
+.leyenda-osciloscopio {
   display: flex;
-  gap: 0.75rem;
-  font-family: var(--fuente-mono);
+  gap: 0.8rem;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  font-weight: 600;
 }
 
-.trazo-flujo {
-  color: var(--color-trazo-flujo);
+.leyenda-flujo {
+  color: var(--accent-flux);
 }
 
-.trazo-fem {
-  color: var(--color-trazo-fem);
+.leyenda-fem {
+  color: var(--accent-copper);
 }
 
-.btn-instrumento {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+/* Panel de parámetros físicos */
+.rejilla-parametros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+  margin-top: 0.85rem;
 }
 
-.indicador-estado {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--color-texto-tenue);
-}
-
-.btn-instrumento[aria-pressed="true"] .indicador-estado {
-  background-color: var(--color-acento-primario);
-  box-shadow: 0 0 6px var(--color-acento-primario);
-}
-
-.acciones-bitacora {
+.control-parametro {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  background-color: var(--bg-panel-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
 }
 
-.contenedor-tabla {
-  max-height: 220px;
-  overflow-y: auto;
-  border: 1px solid var(--color-borde-sutil);
-  border-radius: var(--radio-control);
+.control-parametro label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
-#tabla-mediciones {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--fuente-mono);
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
-}
-
-#tabla-mediciones th,
-#tabla-mediciones td {
-  padding: 0.45rem 0.65rem;
-  text-align: right;
-  border-bottom: 1px solid var(--color-borde-sutil);
-}
-
-#tabla-mediciones th {
-  position: sticky;
-  top: 0;
-  background-color: var(--color-superficie-elevada);
-  color: var(--color-texto-secundario);
+.control-parametro output {
+  font-family: var(--font-mono);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
-#tabla-mediciones tbody tr:hover {
-  background-color: rgba(56, 189, 248, 0.06);
-}
-
-.notificacion-error {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  max-width: 380px;
-  padding: 0.75rem 1rem;
-  background-color: #450a0a;
-  border: 1px solid var(--color-peligro);
-  border-radius: var(--radio-control);
-  color: #fecaca;
-  font-size: 0.82rem;
-  z-index: 100;
+.control-parametro input[type="range"] {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
 }
