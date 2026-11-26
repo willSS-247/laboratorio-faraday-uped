@@ -109,4 +109,31 @@ export class RenderizadorCampo {
     ];
 
     for (const item of etiquetas) {
-      ctx.fillStyle = item.polo === 'N' ? 'rgba(217, 67,
+      ctx.fillStyle = item.polo === 'N' ? 'rgba(217, 67, 54, 0.22)' : 'rgba(43, 125, 233, 0.22)';
+      ctx.strokeStyle = item.polo === 'N' ? '#d94336' : '#2b7de9';
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.roundRect(item.x - 48, posY - 11, 96, 22, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#e6edf3';
+      ctx.fillText(item.texto, item.x, posY);
+    }
+  }
+
+  #dibujarPuntaFlecha(ctx, x, y, anguloRad, tamano = 5) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(anguloRad);
+    ctx.beginPath();
+    ctx.moveTo(tamano, 0);
+    ctx.lineTo(-tamano, -tamano * 0.65);
+    ctx.lineTo(-tamano * 0.6, 0);
+    ctx.lineTo(-tamano, tamano * 0.65);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
