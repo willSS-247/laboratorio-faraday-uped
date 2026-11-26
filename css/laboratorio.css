@@ -7,114 +7,121 @@
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-canvas-app);
-  color: var(--text-primary);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-ui);
+  background-color: var(--chassis-bg);
+  color: var(--ink-primary);
   min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Cabecera sobria y funcional */
+/* Barra superior tipo cabezal de rack */
 .barra-superior {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  padding: 0.85rem 1.5rem;
-  background-color: var(--bg-panel);
-  border-bottom: 1px solid var(--border-hairline);
+  padding: 0.65rem 1.25rem;
+  background-color: var(--panel-surface);
+  border-bottom: 1px solid var(--grid-line);
+}
+
+.identidad-practica {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .identidad-practica .etiqueta-curso {
-  display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-tech);
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--accent-copper);
+  padding: 0.15rem 0.45rem;
+  background-color: var(--display-recessed);
+  border: 1px solid var(--grid-line-strong);
+  color: var(--signal-emf);
+  letter-spacing: 0.04em;
 }
 
 .identidad-practica h1 {
-  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-size: 0.98rem;
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
+  color: var(--ink-primary);
 }
 
 .acciones-globales {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.5rem;
 }
 
-/* Notificación de errores físicos */
 .alerta-fisica {
-  margin: 0.75rem 1.5rem 0;
-  padding: 0.65rem 1rem;
-  border-radius: var(--radius-sm);
-  background-color: color-mix(in srgb, var(--accent-danger) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent-danger) 40%, transparent);
-  color: var(--accent-danger);
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
+  padding: 0.5rem 1.25rem;
+  background-color: #2a1215;
+  border-bottom: 1px solid var(--signal-alert);
+  color: #fca5a5;
+  font-family: var(--font-tech);
+  font-size: 0.8rem;
 }
 
-/* Distribución principal Bento técnico */
+/* Rejilla cerrada sin espacios vacíos entre tarjetas */
 .rejilla-laboratorio {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
-  gap: 1rem;
-  padding: 1rem 1.5rem 2rem;
-  max-width: 1440px;
-  margin: 0 auto;
+  grid-template-columns: minmax(0, 1.6fr) minmax(340px, 1fr);
+  width: 100%;
+  flex: 1;
 }
 
 .panel {
-  background-color: var(--bg-panel);
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.15rem;
+  background-color: var(--panel-surface);
+  border-right: 1px solid var(--grid-line);
+  border-bottom: 1px solid var(--grid-line);
+  padding: 1rem 1.25rem;
 }
 
 .panel-encabezado {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  padding-bottom: 0.65rem;
   margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--grid-line);
 }
 
 .panel-encabezado h2 {
-  font-size: 0.78rem;
+  font-family: var(--font-tech);
+  font-size: 0.74rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--ink-secondary);
 }
 
 .telemetria-inline {
   display: flex;
-  gap: 1rem;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  gap: 1.25rem;
+  font-family: var(--font-tech);
+  font-size: 0.78rem;
+  color: var(--ink-secondary);
   font-variant-numeric: tabular-nums;
 }
 
 .telemetria-inline strong {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
+  color: var(--ink-primary);
   font-weight: 600;
 }
 
+/* Lienzo principal empotrado */
 .contenedor-lienzo {
   width: 100%;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--border-hairline);
-  background-color: var(--bg-canvas-area);
+  background-color: var(--display-recessed);
+  border: 1px solid var(--grid-line-strong);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.55);
 }
 
 .contenedor-lienzo canvas {
@@ -122,137 +129,144 @@ body {
   width: 100%;
   height: auto;
   touch-action: none;
-  cursor: grab;
-}
-
-.contenedor-lienzo canvas:active {
-  cursor: grabbing;
+  cursor: ew-resize;
 }
 
 .pie-lienzo {
-  margin-top: 0.5rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  margin-top: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--ink-dim);
 }
 
-/* Barra de acciones experimentales */
+/* Botonera tipo consola física (esquinas rectas de 2px) */
 .barra-controles-cinematica {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.85rem;
 }
 
-/* Botones táctiles modernos */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.5rem 0.9rem;
-  font-family: var(--font-sans);
-  font-size: 0.84rem;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-tech);
+  font-size: 0.76rem;
   font-weight: 500;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background-color: var(--bg-panel-subtle);
-  color: var(--text-primary);
+  border-radius: 2px;
+  border: 1px solid var(--grid-line-strong);
+  background-color: var(--control-surface);
+  color: var(--ink-primary);
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 
 .btn:hover {
-  background-color: color-mix(in srgb, var(--text-primary) 6%, var(--bg-panel-subtle));
+  background-color: var(--control-hover);
+  border-color: #525d70;
 }
 
 .btn:active {
-  transform: translateY(1px);
+  background-color: var(--display-recessed);
 }
 
-.btn-primario {
-  background-color: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: #ffffff;
-}
-
-.btn-primario:hover {
-  background-color: var(--accent-primary-hover);
+/* Indicador LED en botones con estado */
+.btn-primario::before,
+#btn-audio::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #475467;
+  flex-shrink: 0;
 }
 
 .btn-primario[aria-pressed="true"] {
-  background-color: var(--accent-success);
-  border-color: var(--accent-success);
+  border-color: var(--signal-active);
+  background-color: rgba(16, 185, 129, 0.12);
+}
+
+.btn-primario[aria-pressed="true"]::before,
+#btn-audio[aria-pressed="true"]::before {
+  background-color: var(--signal-active);
+  box-shadow: 0 0 6px var(--signal-active);
 }
 
 .btn-acento {
-  border-color: color-mix(in srgb, var(--accent-copper) 45%, transparent);
-  color: var(--accent-copper);
-  background-color: color-mix(in srgb, var(--accent-copper) 8%, transparent);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: var(--signal-emf);
 }
 
 .btn-peligro {
-  color: var(--accent-danger);
-  border-color: color-mix(in srgb, var(--accent-danger) 30%, transparent);
+  color: #f87171;
 }
 
 .btn-pequeno {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.72rem;
 }
 
-/* Columna de instrumentación */
 .columna-instrumentos {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
-/* Bitácora experimental */
+.columna-instrumentos .panel {
+  border-right: none;
+}
+
+/* Bitácora como consola de registro compacta */
 .panel-bitacora {
   grid-column: 1 / -1;
+  border-right: none;
 }
 
 .contenedor-tabla {
-  overflow-x: auto;
-  border: 1px solid var(--border-hairline);
-  border-radius: var(--radius-sm);
+  max-height: 190px;
+  overflow-y: auto;
+  background-color: var(--display-recessed);
+  border: 1px solid var(--grid-line);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-family: var(--font-tech);
+  font-size: 0.76rem;
   font-variant-numeric: tabular-nums;
 }
 
 th,
 td {
-  padding: 0.55rem 0.75rem;
+  padding: 0.42rem 0.75rem;
   text-align: right;
-  border-bottom: 1px solid var(--border-hairline);
+  border-bottom: 1px solid var(--grid-line);
 }
 
 th:first-child,
 td:first-child {
   text-align: center;
+  color: var(--ink-dim);
 }
 
 th {
-  background-color: var(--bg-panel-subtle);
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+  position: sticky;
+  top: 0;
+  background-color: var(--control-surface);
+  color: var(--ink-secondary);
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-td {
-  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 960px) {
   .rejilla-laboratorio {
     grid-template-columns: 1fr;
-    padding: 0.85rem;
+  }
+
+  .barra-controles-cinematica {
+    grid-template-columns: 1fr;
   }
 }

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="light dark" />
-  <title>Laboratorio Virtual de Física III — Ley de Faraday y Lenz</title>
+  <meta name="color-scheme" content="dark" />
+  <title>Banco de Inducción Faraday-Lenz | Física III UPED</title>
   <link rel="stylesheet" href="css/theme-tokens.css" />
   <link rel="stylesheet" href="css/laboratorio.css" />
   <link rel="stylesheet" href="css/instrumentos.css" />
@@ -12,12 +12,12 @@
 <body>
   <header class="barra-superior">
     <div class="identidad-practica">
-      <span class="etiqueta-curso">Física III · Práctica Experimental</span>
+      <span class="etiqueta-curso">FÍSICA III · LAB-04</span>
       <h1>Inducción Electromagnética de Faraday y Ley de Lenz</h1>
     </div>
     <div class="acciones-globales">
       <button id="btn-audio" class="btn" type="button" aria-pressed="false">
-        <span>●</span>
+        <span></span>
         <span>Audio: OFF</span>
       </button>
       <button id="btn-reiniciar" class="btn btn-peligro" type="button">Reiniciar Banco</button>
@@ -27,13 +27,13 @@
   <div id="alerta-error" class="alerta-fisica" role="alert" hidden></div>
 
   <main class="rejilla-laboratorio">
-    <!-- Columna Izquierda: Mesa Experimental y Parámetros -->
+    <!-- Panel izquierdo: Banco axial y parámetros -->
     <section class="panel" aria-labelledby="titulo-mesa">
       <div class="panel-encabezado">
-        <h2 id="titulo-mesa">Mesa Experimental Graduada (cm)</h2>
+        <h2 id="titulo-mesa">Banco Axial Graduado (cm)</h2>
         <div class="telemetria-inline" aria-live="polite">
-          <span>Posición: <strong id="val-posicion">-12.00 cm</strong></span>
-          <span>Velocidad: <strong id="val-velocidad">0.00 cm/s</strong></span>
+          <span>X: <strong id="val-posicion">-12.00 cm</strong></span>
+          <span>Vx: <strong id="val-velocidad">0.00 cm/s</strong></span>
         </div>
       </div>
 
@@ -42,7 +42,7 @@
           Simulación interactiva de un imán de barra desplazándose a través del eje de una bobina de cobre conectada a un galvanómetro.
         </canvas>
       </div>
-      <p class="pie-lienzo">Arrastre el imán horizontalmente con el puntero o active el oscilador armónico.</p>
+      <p class="pie-lienzo">Arrastre el imán horizontalmente sobre el eje o active el oscilador armónico.</p>
 
       <div class="barra-controles-cinematica">
         <button id="btn-modo-oscilador" class="btn btn-primario" type="button" aria-pressed="false">
@@ -52,14 +52,14 @@
           Invertir Polaridad (N / S)
         </button>
         <button id="btn-capturar-dato" class="btn btn-acento" type="button">
-          Registrar Lectura en Bitácora
+          Capturar Muestra
         </button>
       </div>
 
       <div class="rejilla-parametros">
         <div class="control-parametro">
           <label for="slider-espiras">
-            <span>Espiras (N)</span>
+            <span>Espiras del solenoide (N)</span>
             <output id="disp-espiras" for="slider-espiras">250</output>
           </label>
           <input id="slider-espiras" type="range" min="50" max="1000" step="10" value="250" />
@@ -67,7 +67,7 @@
 
         <div class="control-parametro">
           <label for="slider-campo">
-            <span>Campo Magnético (B)</span>
+            <span>Campo magnético (B)</span>
             <output id="disp-campo" for="slider-campo">0.45 T</output>
           </label>
           <input id="slider-campo" type="range" min="0.10" max="1.50" step="0.05" value="0.45" />
@@ -75,7 +75,7 @@
 
         <div class="control-parametro">
           <label for="slider-area">
-            <span>Área Transversal (A)</span>
+            <span>Área transversal (A)</span>
             <output id="disp-area" for="slider-area">12.0 cm²</output>
           </label>
           <input id="slider-area" type="range" min="4.0" max="30.0" step="0.5" value="12.0" />
@@ -83,7 +83,7 @@
 
         <div class="control-parametro">
           <label for="slider-resistencia">
-            <span>Resistencia (R)</span>
+            <span>Resistencia circuito (R)</span>
             <output id="disp-resistencia" for="slider-resistencia">15.0 Ω</output>
           </label>
           <input id="slider-resistencia" type="range" min="5.0" max="100.0" step="1.0" value="15.0" />
@@ -91,7 +91,7 @@
 
         <div class="control-parametro">
           <label for="slider-frecuencia">
-            <span>Frecuencia Oscilación (f)</span>
+            <span>Frecuencia oscilación (f)</span>
             <output id="disp-frecuencia" for="slider-frecuencia">0.60 Hz</output>
           </label>
           <input id="slider-frecuencia" type="range" min="0.20" max="2.50" step="0.05" value="0.60" />
@@ -99,11 +99,11 @@
       </div>
     </section>
 
-    <!-- Columna Derecha: Galvanómetro y Osciloscopio -->
+    <!-- Columna derecha: Instrumentación acoplada -->
     <div class="columna-instrumentos">
       <section class="panel" aria-labelledby="titulo-galvanometro">
         <div class="panel-encabezado">
-          <h2 id="titulo-galvanometro">Galvanómetro de Cero Central</h2>
+          <h2 id="titulo-galvanometro">Galvanómetro Cero Central</h2>
           <span class="insignia-unidad">mA</span>
         </div>
 
@@ -115,7 +115,7 @@
 
         <div class="rejilla-lecturas" aria-live="polite">
           <div class="celda-lectura">
-            <span class="etiqueta">FEM Inducida (ε)</span>
+            <span class="etiqueta">FEM (ε)</span>
             <output id="out-fem">0.000 V</output>
           </div>
           <div class="celda-lectura">
@@ -131,7 +131,7 @@
 
       <section class="panel" aria-labelledby="titulo-osciloscopio">
         <div class="panel-encabezado">
-          <h2 id="titulo-osciloscopio">Osciloscopio Φ_B(t) vs ε(t)</h2>
+          <h2 id="titulo-osciloscopio">Osciloscopio Φ_B(t) / ε(t)</h2>
           <div class="leyenda-osciloscopio">
             <span class="leyenda-flujo">■ Φ_B</span>
             <span class="leyenda-fem">■ ε</span>
@@ -146,13 +146,13 @@
       </section>
     </div>
 
-    <!-- Bitácora de Adquisición de Datos -->
+    <!-- Consola de registro experimental -->
     <section class="panel panel-bitacora" aria-labelledby="titulo-bitacora">
       <div class="panel-encabezado">
-        <h2 id="titulo-bitacora">Bitácora de Mediciones Experimentales</h2>
+        <h2 id="titulo-bitacora">Registro de Adquisición de Datos</h2>
         <div class="acciones-globales">
-          <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar Tabla</button>
-          <button id="btn-exportar-csv" class="btn btn-primario btn-pequeno" type="button">Exportar CSV</button>
+          <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar</button>
+          <button id="btn-exportar-csv" class="btn btn-acento btn-pequeno" type="button">Exportar CSV</button>
         </div>
       </div>
 
@@ -161,14 +161,14 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Tiempo (s)</th>
-              <th>Posición (cm)</th>
-              <th>Velocidad (cm/s)</th>
-              <th>Espiras (N)</th>
-              <th>Campo (T)</th>
-              <th>Flujo (mWb)</th>
-              <th>FEM (V)</th>
-              <th>Corriente (mA)</th>
+              <th>t (s)</th>
+              <th>x (cm)</th>
+              <th>v (cm/s)</th>
+              <th>N</th>
+              <th>B (T)</th>
+              <th>Φ_B (mWb)</th>
+              <th>ε (V)</th>
+              <th>I (mA)</th>
             </tr>
           </thead>
           <tbody id="cuerpo-tabla"></tbody>
