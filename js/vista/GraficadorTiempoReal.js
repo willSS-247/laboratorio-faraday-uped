@@ -42,10 +42,12 @@ export class GraficadorTiempoReal {
     const centroY = alto / 2;
 
     ctx.clearRect(0, 0, ancho, alto);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, ancho, alto);
 
-    // Retícula graduada del osciloscopio
+    // Retícula graduada estilo papel científico
     ctx.save();
-    ctx.strokeStyle = 'rgba(42, 52, 65, 0.7)';
+    ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
 
     const columnas = 8;
@@ -65,20 +67,20 @@ export class GraficadorTiempoReal {
       ctx.stroke();
     }
 
-    // Eje cero central
-    ctx.strokeStyle = 'rgba(139, 155, 176, 0.45)';
+    // Eje cero central marcado
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     ctx.moveTo(0, centroY);
     ctx.lineTo(ancho, centroY);
     ctx.stroke();
 
-    // Escala dinámica suavizada para mantener legibilidad en todo rango de parámetros
     const maxFlujo = Math.max(1.2, ...this.#historialFlujo.map(Math.abs));
     const maxFem = Math.max(0.8, ...this.#historialFem.map(Math.abs));
     const amplitudPx = alto * 0.41;
 
-    this.#trazarCurva(ctx, this.#historialFlujo, maxFlujo, amplitudPx, centroY, '#38bdf8', 1.75);
-    this.#trazarCurva(ctx, this.#historialFem, maxFem, amplitudPx, centroY, '#f59e0b', 2.0);
+    this.#trazarCurva(ctx, this.#historialFlujo, maxFlujo, amplitudPx, centroY, '#0369a1', 1.8);
+    this.#trazarCurva(ctx, this.#historialFem, maxFem, amplitudPx, centroY, '#b45309', 2.0);
 
     ctx.restore();
   }

@@ -1,19 +1,21 @@
 .insignia-unidad {
-  font-family: var(--font-tech);
-  font-size: 0.7rem;
-  padding: 0.1rem 0.4rem;
-  background-color: var(--display-recessed);
-  border: 1px solid var(--grid-line-strong);
-  color: var(--ink-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 4px;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
 }
 
 .lienzo-instrumento {
   display: flex;
   justify-content: center;
-  background-color: var(--display-recessed);
-  border: 1px solid var(--grid-line-strong);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
-  padding: 0.25rem;
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 0.35rem;
 }
 
 .lienzo-instrumento canvas {
@@ -23,65 +25,61 @@
   display: block;
 }
 
-/* Displays digitales empotrados */
+/* Lecturas numéricas limpias */
 .rejilla-lecturas {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.45rem;
+  gap: 0.5rem;
   margin-top: 0.75rem;
 }
 
 .celda-lectura {
-  background-color: var(--display-recessed);
-  border: 1px solid var(--grid-line);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
   padding: 0.45rem 0.6rem;
 }
 
 .celda-lectura .etiqueta {
   display: block;
-  font-family: var(--font-tech);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 0.15rem;
 }
 
 .celda-lectura output {
   display: block;
-  font-family: var(--font-tech);
+  font-family: var(--font-mono);
   font-size: 0.92rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--signal-emf);
-}
-
-.celda-lectura:last-child output {
-  color: var(--signal-flux);
+  color: var(--text-main);
 }
 
 .leyenda-osciloscopio {
   display: flex;
-  gap: 0.85rem;
-  font-family: var(--font-tech);
-  font-size: 0.72rem;
+  gap: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .leyenda-flujo {
-  color: var(--signal-flux);
+  color: var(--color-flux);
 }
 
 .leyenda-fem {
-  color: var(--signal-emf);
+  color: var(--color-copper);
 }
 
-/* Controles lineales integrados sin tarjetas repetitivas */
+/* Parámetros experimentales */
 .rejilla-parametros {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.65rem 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
   margin-top: 0.9rem;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--grid-line);
+  border-top: 1px solid var(--border-light);
 }
 
 .control-parametro {
@@ -94,54 +92,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.76rem;
-  color: var(--ink-secondary);
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .control-parametro output {
-  font-family: var(--font-tech);
-  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--ink-primary);
-  background-color: var(--display-recessed);
-  padding: 0.08rem 0.35rem;
-  border: 1px solid var(--grid-line);
+  color: var(--text-main);
 }
 
-/* Estilización de pista lineal de precisión */
 .control-parametro input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
   width: 100%;
-  height: 4px;
-  background: var(--display-recessed);
-  border: 1px solid var(--grid-line-strong);
+  accent-color: var(--color-primary);
   cursor: pointer;
-}
-
-.control-parametro input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 11px;
-  height: 16px;
-  background: var(--ink-primary);
-  border: 1px solid #000;
-  border-radius: 1px;
-  cursor: ew-resize;
-}
-
-.control-parametro input[type="range"]::-moz-range-thumb {
-  width: 11px;
-  height: 16px;
-  background: var(--ink-primary);
-  border: 1px solid #000;
-  border-radius: 1px;
-  cursor: ew-resize;
-}
-
-@media (max-width: 640px) {
-  .rejilla-parametros {
-    grid-template-columns: 1fr;
-  }
 }

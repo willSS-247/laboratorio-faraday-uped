@@ -53,15 +53,28 @@ export class Galvanometro {
 
     ctx.clearRect(0, 0, this.#anchoLogico, this.#altoLogico);
 
+    // Fondo blanco de carátula de instrumento
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, this.#anchoLogico, this.#altoLogico);
+
     ctx.save();
-    ctx.strokeStyle = '#2a3441';
-    ctx.lineWidth = 2;
+
+    // Arco de espejo de paralaje sutil
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(centroX, pivoteY, radioEscala - 16, -Math.PI / 2 - amplitudMaximaRad, -Math.PI / 2 + amplitudMaximaRad);
+    ctx.stroke();
+
+    // Arco principal de escala
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
     ctx.arc(centroX, pivoteY, radioEscala, -Math.PI / 2 - amplitudMaximaRad, -Math.PI / 2 + amplitudMaximaRad);
     ctx.stroke();
 
     const totalDivisiones = 30;
-    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    ctx.font = '600 10px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -77,7 +90,7 @@ export class Galvanometro {
       const x2 = centroX + Math.cos(angulo) * radioEscala;
       const y2 = pivoteY + Math.sin(angulo) * radioEscala;
 
-      ctx.strokeStyle = esCero ? '#f59e0b' : esPrincipal ? '#e6edf3' : '#5c6c80';
+      ctx.strokeStyle = esCero ? '#b45309' : esPrincipal ? '#0f172a' : '#64748b';
       ctx.lineWidth = esCero ? 2 : esPrincipal ? 1.5 : 1;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
@@ -86,54 +99,60 @@ export class Galvanometro {
 
       if (esPrincipal) {
         const valorMarca = Math.round(-this.#escalaMaximaMa + t * (2 * this.#escalaMaximaMa));
-        const rTexto = radioEscala - 24;
-        ctx.fillStyle = esCero ? '#f59e0b' : '#8b9bb0';
+        const rTexto = radioEscala - 25;
+        ctx.fillStyle = esCero ? '#b45309' : '#334155';
         ctx.fillText(`${valorMarca}`, centroX + Math.cos(angulo) * rTexto, pivoteY + Math.sin(angulo) * rTexto);
       }
     }
 
-    const activaNegativa = corrienteMa < -0.5;
-    const activaPositiva = corrienteMa > 0.5;
-    this.#dibujarLed(ctx, 34, 28, '-', activaNegativa, '#38bdf8');
-    this.#dibujarLed(ctx, this.#anchoLogico - 34, 28, '+', activaPositiva, '#f59e0b');
+    // Etiqueta central de unidad física
+    ctx.fillStyle = '#64748b';
+    ctx.font = '600 11px "IBM Plex Mono", monospace';
+    ctx.fillText('mA DC', centroX, pivoteY - 52);
 
+    // Bornes indicadores de polaridad
+    this.#dibujarBorne(ctx, 32, 26, '-', corrienteMa < -0.5, '#0369a1');
+    this.#dibujarBorne(ctx, this.#anchoLogico - 32, 26, '+', corrienteMa > 0.5, '#b45309');
+
+    // Aguja de precisión
     const anguloAguja = -Math.PI / 2 + this.#anguloActualRad;
-    const puntaX = centroX + Math.cos(anguloAguja) * (radioEscala - 4);
-    const puntaY = pivoteY + Math.sin(anguloAguja) * (radioEscala - 4);
+    const puntaX = centroX + Math.cos(anguloAguja) * (radioEscala - 3);
+    const puntaY = pivoteY + Math.sin(anguloAguja) * (radioEscala - 3);
 
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(centroX, pivoteY);
     ctx.lineTo(puntaX, puntaY);
     ctx.stroke();
 
-    ctx.fillStyle = '#1e2631';
-    ctx.strokeStyle = '#8b9bb0';
+    // Pivote central metálico
+    ctx.fillStyle = '#334155';
+    ctx.strokeStyle = '#cbd5e1';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(centroX, pivoteY, 8, 0, Math.PI * 2);
+    ctx.arc(centroX, pivoteY, 7.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
     ctx.restore();
   }
 
-  #dibujarLed(ctx, x, y, signo, encendido, colorActivo) {
+  #dibujarBorne(ctx, x, y, signo, activo, colorActivo) {
     ctx.save();
-    ctx.fillStyle = encendido ? colorActivo : '#1e2631';
-    ctx.strokeStyle = encendido ? colorActivo : '#2a3441';
+    ctx.fillStyle = activo ? colorActivo : '#f1f5f9';
+    ctx.strokeStyle = activo ? colorActivo : '#94a3b8';
     ctx.lineWidth = 1.5;
 
     ctx.beginPath();
-    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = '#8b9bb0';
+    ctx.fillStyle = activo ? '#ffffff' : '#475569';
     ctx.font = '700 12px "IBM Plex Mono", monospace';
-    ctx.fillText(signo, x, y + 16);
+    ctx.fillText(signo, x, y + 0.5);
     ctx.restore();
   }
 

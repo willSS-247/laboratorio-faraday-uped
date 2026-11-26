@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="dark" />
-  <title>Banco de Inducción Faraday-Lenz | Física III UPED</title>
+  <meta name="color-scheme" content="light" />
+  <title>Simulador de Inducción Electromagnética — Física III (UPED)</title>
   <link rel="stylesheet" href="css/theme-tokens.css" />
   <link rel="stylesheet" href="css/laboratorio.css" />
   <link rel="stylesheet" href="css/instrumentos.css" />
@@ -12,54 +12,50 @@
 <body>
   <header class="barra-superior">
     <div class="identidad-practica">
-      <span class="etiqueta-curso">FÍSICA III · LAB-04</span>
-      <h1>Inducción Electromagnética de Faraday y Ley de Lenz</h1>
+      <span class="etiqueta-curso">Física III · UPED</span>
+      <h1>Simulador de Inducción Electromagnética de Faraday y Ley de Lenz</h1>
     </div>
     <div class="acciones-globales">
-      <button id="btn-audio" class="btn" type="button" aria-pressed="false">
-        <span></span>
-        <span>Audio: OFF</span>
-      </button>
-      <button id="btn-reiniciar" class="btn btn-peligro" type="button">Reiniciar Banco</button>
+      <button id="btn-audio" class="btn" type="button" aria-pressed="false">Audio: OFF</button>
+      <button id="btn-reiniciar" class="btn btn-peligro" type="button">Reiniciar simulación</button>
     </div>
   </header>
 
   <div id="alerta-error" class="alerta-fisica" role="alert" hidden></div>
 
   <main class="rejilla-laboratorio">
-    <!-- Panel izquierdo: Banco axial y parámetros -->
     <section class="panel" aria-labelledby="titulo-mesa">
       <div class="panel-encabezado">
-        <h2 id="titulo-mesa">Banco Axial Graduado (cm)</h2>
+        <h2 id="titulo-mesa">Área experimental</h2>
         <div class="telemetria-inline" aria-live="polite">
-          <span>X: <strong id="val-posicion">-12.00 cm</strong></span>
-          <span>Vx: <strong id="val-velocidad">0.00 cm/s</strong></span>
+          <span>Posición del imán: <strong id="val-posicion">-12.00 cm</strong></span>
+          <span>Velocidad: <strong id="val-velocidad">0.00 cm/s</strong></span>
         </div>
       </div>
 
       <div class="contenedor-lienzo">
         <canvas id="canvas-laboratorio" width="820" height="340">
-          Simulación interactiva de un imán de barra desplazándose a través del eje de una bobina de cobre conectada a un galvanómetro.
+          Simulación interactiva de un imán desplazándose a través de una bobina de cobre conectada a un galvanómetro.
         </canvas>
       </div>
-      <p class="pie-lienzo">Arrastre el imán horizontalmente sobre el eje o active el oscilador armónico.</p>
+      <p class="pie-lienzo">Arrastra el imán horizontalmente con el ratón o activa el movimiento armónico automático.</p>
 
       <div class="barra-controles-cinematica">
         <button id="btn-modo-oscilador" class="btn btn-primario" type="button" aria-pressed="false">
-          Iniciar Oscilador Armónico
+          Iniciar oscilador armónico
         </button>
         <button id="btn-invertir-polos" class="btn" type="button">
-          Invertir Polaridad (N / S)
+          Invertir polaridad (N / S)
         </button>
         <button id="btn-capturar-dato" class="btn btn-acento" type="button">
-          Capturar Muestra
+          Registrar medición
         </button>
       </div>
 
       <div class="rejilla-parametros">
         <div class="control-parametro">
           <label for="slider-espiras">
-            <span>Espiras del solenoide (N)</span>
+            <span>Número de espiras (N)</span>
             <output id="disp-espiras" for="slider-espiras">250</output>
           </label>
           <input id="slider-espiras" type="range" min="50" max="1000" step="10" value="250" />
@@ -75,7 +71,7 @@
 
         <div class="control-parametro">
           <label for="slider-area">
-            <span>Área transversal (A)</span>
+            <span>Área de la bobina (A)</span>
             <output id="disp-area" for="slider-area">12.0 cm²</output>
           </label>
           <input id="slider-area" type="range" min="4.0" max="30.0" step="0.5" value="12.0" />
@@ -83,7 +79,7 @@
 
         <div class="control-parametro">
           <label for="slider-resistencia">
-            <span>Resistencia circuito (R)</span>
+            <span>Resistencia del circuito (R)</span>
             <output id="disp-resistencia" for="slider-resistencia">15.0 Ω</output>
           </label>
           <input id="slider-resistencia" type="range" min="5.0" max="100.0" step="1.0" value="15.0" />
@@ -91,7 +87,7 @@
 
         <div class="control-parametro">
           <label for="slider-frecuencia">
-            <span>Frecuencia oscilación (f)</span>
+            <span>Frecuencia de oscilación (f)</span>
             <output id="disp-frecuencia" for="slider-frecuencia">0.60 Hz</output>
           </label>
           <input id="slider-frecuencia" type="range" min="0.20" max="2.50" step="0.05" value="0.60" />
@@ -99,23 +95,22 @@
       </div>
     </section>
 
-    <!-- Columna derecha: Instrumentación acoplada -->
     <div class="columna-instrumentos">
       <section class="panel" aria-labelledby="titulo-galvanometro">
         <div class="panel-encabezado">
-          <h2 id="titulo-galvanometro">Galvanómetro Cero Central</h2>
+          <h2 id="titulo-galvanometro">Galvanómetro de cero central</h2>
           <span class="insignia-unidad">mA</span>
         </div>
 
         <div class="lienzo-instrumento">
           <canvas id="canvas-galvanometro" width="320" height="190">
-            Indicador analógico de corriente inducida en miliamperios.
+            Galvanómetro analógico de cero central en miliamperios.
           </canvas>
         </div>
 
         <div class="rejilla-lecturas" aria-live="polite">
           <div class="celda-lectura">
-            <span class="etiqueta">FEM (ε)</span>
+            <span class="etiqueta">FEM inducida (ε)</span>
             <output id="out-fem">0.000 V</output>
           </div>
           <div class="celda-lectura">
@@ -131,7 +126,7 @@
 
       <section class="panel" aria-labelledby="titulo-osciloscopio">
         <div class="panel-encabezado">
-          <h2 id="titulo-osciloscopio">Osciloscopio Φ_B(t) / ε(t)</h2>
+          <h2 id="titulo-osciloscopio">Gráfica temporal Φ_B(t) y ε(t)</h2>
           <div class="leyenda-osciloscopio">
             <span class="leyenda-flujo">■ Φ_B</span>
             <span class="leyenda-fem">■ ε</span>
@@ -140,19 +135,18 @@
 
         <div class="lienzo-instrumento">
           <canvas id="canvas-osciloscopio" width="320" height="170">
-            Gráfica temporal comparando el flujo magnético y la fuerza electromotriz inducida.
+            Gráfica de flujo magnético y fuerza electromotriz en el tiempo.
           </canvas>
         </div>
       </section>
     </div>
 
-    <!-- Consola de registro experimental -->
     <section class="panel panel-bitacora" aria-labelledby="titulo-bitacora">
       <div class="panel-encabezado">
-        <h2 id="titulo-bitacora">Registro de Adquisición de Datos</h2>
+        <h2 id="titulo-bitacora">Tabla de mediciones registradas</h2>
         <div class="acciones-globales">
-          <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar</button>
-          <button id="btn-exportar-csv" class="btn btn-acento btn-pequeno" type="button">Exportar CSV</button>
+          <button id="btn-limpiar-tabla" class="btn btn-pequeno" type="button">Limpiar tabla</button>
+          <button id="btn-exportar-csv" class="btn btn-primario btn-pequeno" type="button">Exportar CSV</button>
         </div>
       </div>
 
@@ -161,14 +155,14 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>t (s)</th>
-              <th>x (cm)</th>
-              <th>v (cm/s)</th>
-              <th>N</th>
-              <th>B (T)</th>
-              <th>Φ_B (mWb)</th>
-              <th>ε (V)</th>
-              <th>I (mA)</th>
+              <th>Tiempo (s)</th>
+              <th>Posición (cm)</th>
+              <th>Velocidad (cm/s)</th>
+              <th>Espiras (N)</th>
+              <th>Campo (T)</th>
+              <th>Flujo (mWb)</th>
+              <th>FEM (V)</th>
+              <th>Corriente (mA)</th>
             </tr>
           </thead>
           <tbody id="cuerpo-tabla"></tbody>

@@ -3,18 +3,27 @@ import { RenderizadorCampo } from './RenderizadorCampo.js';
 export class LienzoLaboratorio {
   #canvas;
   #ctx;
-  #renderizadorCampo;
   #anchoLogico;
   #altoLogico;
   #escalaPxPorCm;
+  #origenX;
+  #origenY;
+  #renderizadorCampo;
+  #arrastrandoIman;
+  #offsetArrastreX;
 
   constructor(canvasElemento) {
     this.#canvas = canvasElemento;
     this.#ctx = canvasElemento.getContext('2d');
-    this.#renderizadorCampo = new RenderizadorCampo();
     this.#anchoLogico = 820;
     this.#altoLogico = 340;
-    this.#escalaPxPorCm = 20;
+    this.#escalaPxPorCm = 17.5;
+    this.#origenX = this.#anchoLogico * 0.54;
+    this.#origenY = this.#altoLogico * 0.48;
+    this.#renderizadorCampo = new RenderizadorCampo();
+    this.#arrastrandoIman = false;
+    this.#offsetArrastreX = 0;
+
     this.#configurarResolucionNitida();
   }
 
@@ -25,227 +34,304 @@ export class LienzoLaboratorio {
     this.#ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  get origenX() {
-    return this.#anchoLogico / 2;
+  vincularInteraccionIman(iman, alIniciarArrastre, alMoverIman) {
+    const obtenerCoordenadaLogicaX = (evento) => {
+      const rect = this.#canvas.getBoundingClientRect();
+      return ((evento.clientX - rect.left) / rect.width) * this.#anchoLogico;
+    };
+
+    this.#canvas.addEventListener('pointerdown', (evento) => {
+      const xPx = obtenerCoordenadaLogicaX(evento);
+      const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
+      const mitadLargoPx = (iman.longitudCm * this.#escalaPxPorCm) / 2 + 16;
+
+      if (Math.abs(xPx - centroImanPx) <= mitadLargoPx) {
+        this.#arrastrandoIman = true;
+        this.#offsetArrastreX = xPx - centroImanPx;
+        this.#canvas.setPointerCapture(evento.pointerId);
+        if (typeof alIniciarArrastre === 'function') {
+          alIniciarArrastre();
+        }
+      }
+    });
+
+    this.#canvas.addEventListener('pointermove', (evento) => {
+      if (!this.#arrastrandoIman) return;
+      const xPx = obtenerCoordenadaLogicaX(evento) - this.#offsetArrastreX;
+      const nuevaPosicionCm = (xPx - this.#origenX) / this.#escalaPxPorCm;
+      if (typeof alMoverIman === 'function') {
+        alMoverIman(nuevaPosicionCm);
+      }
+    });
+
+    const finalizarArrastre = (evento) => {
+      if (!this.#arrastrandoIman) return;
+      this.#arrastrandoIman = false;
+      if (this.#canvas.hasPointerCapture(evento.pointerId)) {
+        this.#canvas.releasePointerCapture(evento.pointerId);
+      }
+    };
+
+    this.#canvas.addEventListener('pointerup', finalizarArrastre);
+    this.#canvas.addEventListener('pointercancel', finalizarArrastre);
   }
 
-  get origenY() {
-    return this.#altoLogico * 0.48;
-  }
-
-  pixelAPosicionCm(clientX) {
-    const rect = this.#canvas.getBoundingClientRect();
-    const escalaX = this.#anchoLogico / rect.width;
-    const xCanvas = (clientX - rect.left) * escalaX;
-    return (xCanvas - this.origenX) / this.#escalaPxPorCm;
-  }
-
-  contienePuntoEnIman(clientX, clientY, iman) {
-    const rect = this.#canvas.getBoundingClientRect();
-    const xCanvas = (clientX - rect.left) * (this.#anchoLogico / rect.width);
-    const yCanvas = (clientY - rect.top) * (this.#altoLogico / rect.height);
-
-    const centroImanX = this.origenX + iman.posicionX * this.#escalaPxPorCm;
-    const medioLargoPx = (iman.longitudCm * this.#escalaPxPorCm) / 2 + 10;
-    const medioAltoPx = 28;
-
-    return (
-      Math.abs(xCanvas - centroImanX) <= medioLargoPx &&
-      Math.abs(yCanvas - this.origenY) <= medioAltoPx
-    );
-  }
-
-  renderizar(iman, bobina, telemetria, deltaTiempoS) {
+  renderizar(motorFaraday, deltaTiempoS) {
     const ctx = this.#ctx;
-    const origenX = this.origenX;
-    const origenY = this.origenY;
+    const iman = motorFaraday.iman;
+    const bobina = motorFaraday.bobina;
+    const estadoLenz = motorFaraday.obtenerEstadoLenz();
 
     ctx.clearRect(0, 0, this.#anchoLogico, this.#altoLogico);
 
-    this.#dibujarMesaYRegla(ctx, origenX, origenY);
-    this.#renderizadorCampo.dibujarLineasCampoMagnetico(ctx, iman, origenX, origenY, this.#escalaPxPorCm);
+    this.#dibujarFondoYRegla(ctx);
+    this.#dibujarSoporteBobina(ctx, bobina);
+    this.#dibujarEspirasBobina(ctx, bobina, false);
 
-    // Capa 1: Espiras traseras de la bobina (detrás del imán)
-    this.#dibujarCapaBobina(ctx, bobina, origenX, origenY, false);
+    this.#renderizadorCampo.dibujarLineasCampoMagnetico(
+      ctx,
+      iman,
+      this.#origenX,
+      this.#origenY,
+      this.#escalaPxPorCm
+    );
+    this.#dibujarIman(ctx, iman);
 
-    // Capa 2: Imán dipolar pasando por el eje central
-    this.#dibujarIman(ctx, iman, origenX, origenY);
-
-    // Capa 3: Espiras frontales y terminales al galvanómetro (delante del imán)
-    this.#dibujarCapaBobina(ctx, bobina, origenX, origenY, true);
-    this.#dibujarTerminalesCircuito(ctx, bobina, origenX, origenY);
-
-    // Capa 4: Vectores animados de corriente inducida y polos de oposición (Ley de Lenz)
+    this.#dibujarEspirasBobina(ctx, bobina, true);
     this.#renderizadorCampo.dibujarVectoresCorrienteLenz(
       ctx,
       bobina,
-      telemetria.lenz,
-      telemetria.corrienteMa,
-      origenX,
-      origenY,
+      estadoLenz,
+      motorFaraday.corrienteInducidaMa,
+      this.#origenX,
+      this.#origenY,
       this.#escalaPxPorCm,
       deltaTiempoS
     );
   }
 
-  #dibujarMesaYRegla(ctx, origenX, origenY) {
-    // Eje óptico / magnético central
+  #dibujarFondoYRegla(ctx) {
     ctx.save();
-    ctx.strokeStyle = 'rgba(139, 155, 176, 0.22)';
-    ctx.setLineDash([6, 6]);
+
+    // Cuadrícula milimetrada suave de laboratorio
+    ctx.strokeStyle = '#f1f5f9';
     ctx.lineWidth = 1;
+    const pasoCuadricula = 25;
+    for (let x = 0; x <= this.#anchoLogico; x += pasoCuadricula) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, this.#altoLogico);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= this.#altoLogico; y += pasoCuadricula) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(this.#anchoLogico, y);
+      ctx.stroke();
+    }
+
+    // Eje axial de simetría
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.setLineDash([6, 4]);
     ctx.beginPath();
-    ctx.moveTo(24, origenY);
-    ctx.lineTo(this.#anchoLogico - 24, origenY);
+    ctx.moveTo(30, this.#origenY);
+    ctx.lineTo(this.#anchoLogico - 30, this.#origenY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Regla graduada inferior en centímetros
-    const yRegla = this.#altoLogico - 42;
-    ctx.fillStyle = '#192029';
-    ctx.fillRect(24, yRegla, this.#anchoLogico - 48, 28);
-    ctx.strokeStyle = '#2a3441';
-    ctx.strokeRect(24, yRegla, this.#anchoLogico - 48, 28);
+    // Regla física graduada en la parte inferior
+    const yRegla = this.#altoLogico - 34;
+    ctx.fillStyle = '#f8fafc';
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(36, yRegla - 10, this.#anchoLogico - 72, 28, 4);
+    ctx.fill();
+    ctx.stroke();
 
-    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    ctx.font = '500 11px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
 
-    for (let cm = -18; cm <= 18; cm++) {
-      const x = origenX + cm * this.#escalaPxPorCm;
-      const esMayor = cm % 5 === 0 || cm === 0;
-      const altoMarca = esMayor ? 10 : 5;
+    for (let cm = -24; cm <= 18; cm++) {
+      const x = this.#origenX + cm * this.#escalaPxPorCm;
+      if (x < 48 || x > this.#anchoLogico - 48) continue;
 
-      ctx.strokeStyle = cm === 0 ? '#f59e0b' : '#5c6c80';
-      ctx.lineWidth = cm === 0 ? 1.5 : 1;
+      const esPrincipal = cm % 5 === 0;
+      const esOrigen = cm === 0;
+
+      ctx.strokeStyle = esOrigen ? '#b45309' : esPrincipal ? '#475569' : '#94a3b8';
+      ctx.lineWidth = esOrigen ? 1.8 : 1;
       ctx.beginPath();
-      ctx.moveTo(x, yRegla);
-      ctx.lineTo(x, yRegla + altoMarca);
+      ctx.moveTo(x, yRegla - 10);
+      ctx.lineTo(x, yRegla - 10 + (esPrincipal ? 10 : 5));
       ctx.stroke();
 
-      if (esMayor) {
-        ctx.fillStyle = cm === 0 ? '#f59e0b' : '#8b9bb0';
-        ctx.fillText(`${cm}`, x, yRegla + 12);
+      if (esPrincipal) {
+        ctx.fillStyle = esOrigen ? '#b45309' : '#475569';
+        ctx.fillText(`${cm}`, x, yRegla + 2);
       }
     }
 
     ctx.restore();
   }
 
-  #dibujarIman(ctx, iman, origenX, origenY) {
-    const centroX = origenX + iman.posicionX * this.#escalaPxPorCm;
-    const largoPx = iman.longitudCm * this.#escalaPxPorCm;
-    const altoPx = 38;
-    const mitadLargo = largoPx / 2;
-    const mitadAlto = altoPx / 2;
-
-    const izqEsSur = iman.polaridadNorteDerecha;
-    const colorIzq = izqEsSur ? '#2b7de9' : '#d94336';
-    const colorDer = izqEsSur ? '#d94336' : '#2b7de9';
-    const letraIzq = izqEsSur ? 'S' : 'N';
-    const letraDer = izqEsSur ? 'N' : 'S';
+  #dibujarSoporteBobina(ctx, bobina) {
+    const centroX = this.#origenX + bobina.posicionX * this.#escalaPxPorCm;
+    const anchoPx = bobina.anchoCm * this.#escalaPxPorCm;
+    const baseY = this.#origenY + 62;
 
     ctx.save();
-
-    // Sombra sutil sobre la mesa
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.38)';
-    ctx.fillRect(centroX - mitadLargo + 3, origenY - mitadAlto + 5, largoPx, altoPx);
-
-    // Mitad izquierda
-    ctx.fillStyle = colorIzq;
-    ctx.fillRect(centroX - mitadLargo, origenY - mitadAlto, mitadLargo, altoPx);
-
-    // Mitad derecha
-    ctx.fillStyle = colorDer;
-    ctx.fillRect(centroX, origenY - mitadAlto, mitadLargo, altoPx);
-
-    // Borde metálico y línea divisoria central
-    ctx.strokeStyle = '#e6edf3';
-    ctx.lineWidth = 1.4;
-    ctx.strokeRect(centroX - mitadLargo, origenY - mitadAlto, largoPx, altoPx);
-
+    // Base aislante tipo laboratorio académico
+    ctx.fillStyle = '#e2e8f0';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    ctx.moveTo(centroX, origenY - mitadAlto);
-    ctx.lineTo(centroX, origenY + mitadAlto);
+    ctx.roundRect(centroX - anchoPx / 2 - 14, baseY, anchoPx + 28, 12, 3);
+    ctx.fill();
     ctx.stroke();
 
-    // Etiquetas N / S
+    // Cables de conexión hacia el galvanómetro
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(centroX - anchoPx / 2 + 4, this.#origenY + 58);
+    ctx.lineTo(centroX - anchoPx / 2 + 4, baseY + 26);
+    ctx.lineTo(centroX - 20, baseY + 26);
+
+    ctx.moveTo(centroX + anchoPx / 2 - 4, this.#origenY + 58);
+    ctx.lineTo(centroX + anchoPx / 2 - 4, baseY + 26);
+    ctx.lineTo(centroX + 20, baseY + 26);
+    ctx.stroke();
+
+    // Símbolo de terminal conectado a G
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(centroX, baseY + 26, 13, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#92400e';
+    ctx.font = '700 11px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('G', centroX, baseY + 26);
+    ctx.restore();
+  }
+
+  #dibujarIman(ctx, iman) {
+    const centroX = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
+    const largoPx = iman.longitudCm * this.#escalaPxPorCm;
+    const altoPx = 40;
+    const xInicio = centroX - largoPx / 2;
+    const yInicio = this.#origenY - altoPx / 2;
+    const mitadAncho = largoPx / 2;
+
+    const poloDerechoEsNorte = iman.polaridadNorteDerecha;
+    const etiquetaIzq = poloDerechoEsNorte ? 'S' : 'N';
+    const etiquetaDer = poloDerechoEsNorte ? 'N' : 'S';
+
+    ctx.save();
+    // Sombra realista sobre la mesa
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.16)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+
+    // Mitad izquierda con degradado metálico
+    const gradIzq = ctx.createLinearGradient(0, yInicio, 0, yInicio + altoPx);
+    if (poloDerechoEsNorte) {
+      gradIzq.addColorStop(0, '#3b82f6');
+      gradIzq.addColorStop(0.45, '#1d4ed8');
+      gradIzq.addColorStop(1, '#1e3a8a');
+    } else {
+      gradIzq.addColorStop(0, '#ef4444');
+      gradIzq.addColorStop(0.45, '#dc2626');
+      gradIzq.addColorStop(1, '#991b1b');
+    }
+    ctx.fillStyle = gradIzq;
+    ctx.beginPath();
+    ctx.roundRect(xInicio, yInicio, mitadAncho, altoPx, [4, 0, 0, 4]);
+    ctx.fill();
+
+    // Mitad derecha con degradado metálico
+    const gradDer = ctx.createLinearGradient(0, yInicio, 0, yInicio + altoPx);
+    if (poloDerechoEsNorte) {
+      gradDer.addColorStop(0, '#ef4444');
+      gradDer.addColorStop(0.45, '#dc2626');
+      gradDer.addColorStop(1, '#991b1b');
+    } else {
+      gradDer.addColorStop(0, '#3b82f6');
+      gradDer.addColorStop(0.45, '#1d4ed8');
+      gradDer.addColorStop(1, '#1e3a8a');
+    }
+    ctx.fillStyle = gradDer;
+    ctx.beginPath();
+    ctx.roundRect(xInicio + mitadAncho, yInicio, mitadAncho, altoPx, [0, 4, 4, 0]);
+    ctx.fill();
+
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(xInicio, yInicio, largoPx, altoPx, 4);
+    ctx.stroke();
+
+    // Línea divisoria central metálica
+    ctx.beginPath();
+    ctx.moveTo(centroX, yInicio);
+    ctx.lineTo(centroX, yInicio + altoPx);
+    ctx.stroke();
+
+    // Etiquetas grabadas
     ctx.fillStyle = '#ffffff';
     ctx.font = '700 15px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(letraIzq, centroX - mitadLargo * 0.5, origenY);
-    ctx.fillText(letraDer, centroX + mitadLargo * 0.5, origenY);
+    ctx.fillText(etiquetaIzq, xInicio + mitadAncho * 0.5, this.#origenY);
+    ctx.fillText(etiquetaDer, xInicio + mitadAncho * 1.5, this.#origenY);
 
     ctx.restore();
   }
 
-  #dibujarCapaBobina(ctx, bobina, origenX, origenY, esFrontal) {
-    const centroX = origenX + bobina.posicionX * this.#escalaPxPorCm;
+  #dibujarEspirasBobina(ctx, bobina, capaFrontal) {
+    const centroX = this.#origenX + bobina.posicionX * this.#escalaPxPorCm;
     const anchoPx = bobina.anchoCm * this.#escalaPxPorCm;
-    const radioVertical = 56;
-    const radioHorizontal = 14;
-    const espirasVisibles = Math.min(22, Math.max(6, Math.round(bobina.espiras / 40)));
-    const paso = anchoPx / espirasVisibles;
+    const radioVerticalPx = 58;
+    const radioHorizontalPx = 14;
+    const espirasVisibles = Math.min(18, Math.max(6, Math.round(bobina.espiras / 50)));
+    const pasoEspira = anchoPx / espirasVisibles;
     const inicioX = centroX - anchoPx / 2;
 
     ctx.save();
-    ctx.lineWidth = esFrontal ? 4.2 : 3.6;
+    // Degradado de cobre realista para cada espira
+    const gradCobre = ctx.createLinearGradient(0, this.#origenY - radioVerticalPx, 0, this.#origenY + radioVerticalPx);
+    if (capaFrontal) {
+      gradCobre.addColorStop(0, '#92400e');
+      gradCobre.addColorStop(0.35, '#f59e0b');
+      gradCobre.addColorStop(0.7, '#d97706');
+      gradCobre.addColorStop(1, '#78350f');
+    } else {
+      gradCobre.addColorStop(0, '#78350f');
+      gradCobre.addColorStop(0.5, '#b45309');
+      gradCobre.addColorStop(1, '#451a03');
+    }
+
+    ctx.strokeStyle = gradCobre;
+    ctx.lineWidth = capaFrontal ? 4.8 : 4.2;
     ctx.lineCap = 'round';
 
     for (let i = 0; i < espirasVisibles; i++) {
-      const x = inicioX + (i + 0.5) * paso;
-      ctx.strokeStyle = esFrontal ? '#e89b5a' : '#7c461b';
-
+      const xEspira = inicioX + (i + 0.5) * pasoEspira;
       ctx.beginPath();
-      if (esFrontal) {
-        // Semielipse derecha (pasa por delante del imán)
-        ctx.ellipse(x, origenY, radioHorizontal, radioVertical, 0, -Math.PI / 2, Math.PI / 2);
+      if (capaFrontal) {
+        ctx.ellipse(xEspira, this.#origenY, radioHorizontalPx, radioVerticalPx, 0, -Math.PI / 2, Math.PI / 2);
       } else {
-        // Semielipse izquierda (pasa por detrás del imán)
-        ctx.ellipse(x, origenY, radioHorizontal, radioVertical, 0, Math.PI / 2, (3 * Math.PI) / 2);
+        ctx.ellipse(xEspira, this.#origenY, radioHorizontalPx, radioVerticalPx, 0, Math.PI / 2, (Math.PI * 3) / 2);
       }
       ctx.stroke();
     }
-
-    ctx.restore();
-  }
-
-  #dibujarTerminalesCircuito(ctx, bobina, origenX, origenY) {
-    const centroX = origenX + bobina.posicionX * this.#escalaPxPorCm;
-    const anchoPx = bobina.anchoCm * this.#escalaPxPorCm;
-    const yBase = origenY + 56;
-    const yConexion = origenY + 94;
-
-    ctx.save();
-    ctx.strokeStyle = '#c87533';
-    ctx.lineWidth = 3;
-
-    // Conductores bajando hacia el galvanómetro externo
-    ctx.beginPath();
-    ctx.moveTo(centroX - anchoPx * 0.45, yBase);
-    ctx.lineTo(centroX - anchoPx * 0.45, yConexion);
-    ctx.lineTo(centroX - 18, yConexion);
-
-    ctx.moveTo(centroX + anchoPx * 0.45, yBase);
-    ctx.lineTo(centroX + anchoPx * 0.45, yConexion);
-    ctx.lineTo(centroX + 18, yConexion);
-    ctx.stroke();
-
-    // Borne de conexión
-    ctx.fillStyle = '#1e2631';
-    ctx.strokeStyle = '#e89b5a';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(centroX, yConexion, 18, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#f59e0b';
-    ctx.font = '700 12px "IBM Plex Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('G', centroX, yConexion);
 
     ctx.restore();
   }

@@ -16,8 +16,8 @@ export class RenderizadorCampo {
     const opacidad = 0.16 + intensidadNormalizada * 0.28;
 
     ctx.save();
-    ctx.strokeStyle = `rgba(56, 189, 248, ${opacidad.toFixed(3)})`;
-    ctx.fillStyle = `rgba(56, 189, 248, ${(opacidad + 0.15).toFixed(3)})`;
+    ctx.strokeStyle = `rgba(3, 105, 161, ${(0.28 + intensidadNormalizada * 0.35).toFixed(3)})`;
+    ctx.fillStyle = `rgba(3, 105, 161, ${(0.45 + intensidadNormalizada * 0.4).toFixed(3)})`;
     ctx.lineWidth = 1.25;
 
     for (let i = 1; i <= cantidadLineas; i++) {
@@ -118,7 +118,7 @@ export class RenderizadorCampo {
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#e6edf3';
+      ctx.fillStyle = '#0f172a';
       ctx.fillText(item.texto, item.x, posY);
     }
   }
