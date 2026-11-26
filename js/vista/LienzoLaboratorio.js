@@ -35,12 +35,15 @@ export class LienzoLaboratorio {
   }
 
   contienePuntoEnIman(clienteX, clienteY, iman) {
+    if (!iman) return false;
     const rect = this.#canvas.getBoundingClientRect();
     const xPx = ((clienteX - rect.left) / rect.width) * this.#anchoLogico;
     const yPx = ((clienteY - rect.top) / rect.height) * this.#altoLogico;
 
-    const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
-    const mitadLargoPx = (iman.longitudCm * this.#escalaPxPorCm) / 2 + 18;
+    const posX = iman.posicionX ?? 0;
+    const largoCm = iman.longitudCm ?? 6;
+    const centroImanPx = this.#origenX + posX * this.#escalaPxPorCm;
+    const mitadLargoPx = (largoCm * this.#escalaPxPorCm) / 2 + 18;
     const mitadAltoPx = 32;
 
     return (
@@ -64,7 +67,7 @@ export class LienzoLaboratorio {
     this.#canvas.addEventListener('pointerdown', (evento) => {
       if (this.contienePuntoEnIman(evento.clientX, evento.clientY, iman)) {
         const xPx = obtenerCoordenadaLogicaX(evento);
-        const centroImanPx = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
+        const centroImanPx = this.#origenX + (iman.posicionX ?? 0) * this.#escalaPxPorCm;
         this.#arrastrandoIman = true;
         this.#offsetArrastreX = xPx - centroImanPx;
         this.#canvas.setPointerCapture(evento.pointerId);
@@ -95,36 +98,65 @@ export class LienzoLaboratorio {
     this.#canvas.addEventListener('pointercancel', finalizarArrastre);
   }
 
-  #resolverEstadoLenz(motorFaraday) {
-    if (typeof motorFaraday.obtenerEstadoLenz === 'function') {
-      return motorFaraday.obtenerEstadoLenz();
-    }
-    if (typeof motorFaraday.determinarLeyLenz === 'function') {
-      return motorFaraday.determinarLeyLenz();
-    }
-    if (motorFaraday.estadoLenz) {
-      return motorFaraday.estadoLenz;
+  #extraerComponentes(primerArg, segundoArg) {
+    if (primerArg && primerArg.iman && primerArg.bobina) {
+      return {
+        iman: primerArg.iman,
+        bobina: primerArg.bobina,
+        motor: primerArg
+      };
     }
 
-    const corriente = motorFaraday.corrienteInducidaMa || 0;
-    const hayInduccion = Math.abs(corriente) > 0.25;
-    const sentidoCorriente = corriente >= 0 ? 1 : -1;
-    const poloInducidoIzquierda = sentidoCorriente > 0 ? 'N' : 'S';
-    const poloInducidoDerecha = sentidoCorriente > 0 ? 'S' : 'N';
+    if (primerArg && typeof primerArg.obtenerIman === 'function') {
+      return {
+        iman: primerArg.obtenerIman(),
+        bobina: primerArg.obtenerBobina(),
+        motor: primerArg
+      };
+    }
+
+    if (primerArg && segundoArg && segundoArg.espiras !== undefined) {
+      return {
+        iman: primerArg,
+        bobina: segundoArg,
+        motor: {}
+      };
+    }
 
     return {
-      hayInduccion,
-      sentidoCorriente,
-      poloInducidoIzquierda,
-      poloInducidoDerecha
+      iman: { posicionX: -12, longitudCm: 6, campoMagnetico: 0.45, polaridadNorteDerecha: true },
+      bobina: { posicionX: 0, anchoCm: 5.5, espiras: 250 },
+      motor: primerArg || {}
     };
   }
 
-  renderizar(motorFaraday, deltaTiempoS) {
+  #resolverEstadoLenz(motor, corrienteMa) {
+    if (motor && typeof motor.obtenerEstadoLenz === 'function') {
+      return motor.obtenerEstadoLenz();
+    }
+    if (motor && typeof motor.determinarLeyLenz === 'function') {
+      return motor.determinarLeyLenz();
+    }
+    if (motor && motor.estadoLenz) {
+      return motor.estadoLenz;
+    }
+
+    const hayInduccion = Math.abs(corrienteMa) > 0.25;
+    const sentidoCorriente = corrienteMa >= 0 ? 1 : -1;
+    return {
+      hayInduccion,
+      sentidoCorriente,
+      poloInducidoIzquierda: sentidoCorriente > 0 ? 'N' : 'S',
+      poloInducidoDerecha: sentidoCorriente > 0 ? 'S' : 'N'
+    };
+  }
+
+  renderizar(arg1, arg2, arg3) {
     const ctx = this.#ctx;
-    const iman = motorFaraday.iman;
-    const bobina = motorFaraday.bobina;
-    const estadoLenz = this.#resolverEstadoLenz(motorFaraday);
+    const { iman, bobina, motor } = this.#extraerComponentes(arg1, arg2);
+    const deltaTiempoS = typeof arg2 === 'number' ? arg2 : (typeof arg3 === 'number' ? arg3 : 0.016);
+    const corrienteMa = motor.corrienteInducidaMa ?? motor.corrienteMa ?? 0;
+    const estadoLenz = this.#resolverEstadoLenz(motor, corrienteMa);
 
     ctx.clearRect(0, 0, this.#anchoLogico, this.#altoLogico);
 
@@ -146,7 +178,7 @@ export class LienzoLaboratorio {
       ctx,
       bobina,
       estadoLenz,
-      motorFaraday.corrienteInducidaMa,
+      corrienteMa,
       this.#origenX,
       this.#origenY,
       this.#escalaPxPorCm,
@@ -218,8 +250,10 @@ export class LienzoLaboratorio {
   }
 
   #dibujarSoporteBobina(ctx, bobina) {
-    const centroX = this.#origenX + bobina.posicionX * this.#escalaPxPorCm;
-    const anchoPx = bobina.anchoCm * this.#escalaPxPorCm;
+    const posX = bobina.posicionX ?? 0;
+    const anchoCm = bobina.anchoCm ?? 5.5;
+    const centroX = this.#origenX + posX * this.#escalaPxPorCm;
+    const anchoPx = anchoCm * this.#escalaPxPorCm;
     const baseY = this.#origenY + 62;
 
     ctx.save();
@@ -260,14 +294,16 @@ export class LienzoLaboratorio {
   }
 
   #dibujarIman(ctx, iman) {
-    const centroX = this.#origenX + iman.posicionX * this.#escalaPxPorCm;
-    const largoPx = iman.longitudCm * this.#escalaPxPorCm;
+    const posX = iman.posicionX ?? -12;
+    const largoCm = iman.longitudCm ?? 6;
+    const centroX = this.#origenX + posX * this.#escalaPxPorCm;
+    const largoPx = largoCm * this.#escalaPxPorCm;
     const altoPx = 42;
     const xInicio = centroX - largoPx / 2;
     const yInicio = this.#origenY - altoPx / 2;
     const mitadAncho = largoPx / 2;
 
-    const poloDerechoEsNorte = iman.polaridadNorteDerecha;
+    const poloDerechoEsNorte = iman.polaridadNorteDerecha ?? true;
     const etiquetaIzq = poloDerechoEsNorte ? 'S' : 'N';
     const etiquetaDer = poloDerechoEsNorte ? 'N' : 'S';
 
@@ -329,11 +365,14 @@ export class LienzoLaboratorio {
   }
 
   #dibujarEspirasBobina(ctx, bobina, capaFrontal) {
-    const centroX = this.#origenX + bobina.posicionX * this.#escalaPxPorCm;
-    const anchoPx = bobina.anchoCm * this.#escalaPxPorCm;
+    const posX = bobina.posicionX ?? 0;
+    const anchoCm = bobina.anchoCm ?? 5.5;
+    const espiras = bobina.espiras ?? 250;
+    const centroX = this.#origenX + posX * this.#escalaPxPorCm;
+    const anchoPx = anchoCm * this.#escalaPxPorCm;
     const radioVerticalPx = 58;
     const radioHorizontalPx = 14;
-    const espirasVisibles = Math.min(18, Math.max(6, Math.round(bobina.espiras / 50)));
+    const espirasVisibles = Math.min(18, Math.max(6, Math.round(espiras / 50)));
     const pasoEspira = anchoPx / espirasVisibles;
     const inicioX = centroX - anchoPx / 2;
 
